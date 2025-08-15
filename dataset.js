@@ -139,7 +139,10 @@ async function seed() {
   const Recetas = db.collection("recetas");
 
   // Índices (crear si no existen)
-  await Usuarios.createIndex({ email: 1 }, { unique: true });
+  await Usuarios.createIndex(
+    { email: 1 },
+    { unique: true, collation: { locale: "es", strength: 2 } }
+  );
   await Ingredientes.createIndex(
     { nombre: 1 },
     { unique: true, collation: { locale: "es", strength: 2 } } // CI por mayúsculas/minúsculas

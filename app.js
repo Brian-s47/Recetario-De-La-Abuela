@@ -1,7 +1,8 @@
 //Zona de importacion de modulos
-import express from "express";
-import dotenv from 'dotenv';
-import { connect, getDB, disconnect} from "./src/config/db.js";
+import express from "express"; // importacion de express para ejecucion de app
+import dotenv from 'dotenv'; // Importacion de dotenv para manejo de varibles de entorno
+import { connect, getDB, disconnect} from "./src/config/db.js"; // Importacion de metodos para conexio con DB
+import { initModels } from "./src/models/index.js"; // Importacion de inicializador de modelos o clases en la BD
 
 // Inicializacion de config para variables de entorno
 dotenv.config();
@@ -15,7 +16,8 @@ app.use(express.json());
 
 // Abrimos conexion
 connect() 
-  .then(() => { // Conexion correcta
+  .then( async() => { // Conexion correcta
+    await initModels(getDB()); // Creacion y actualizacion de validadores e indices de las clases 
     const server = app.listen(port, () => { // iniciamos servidor
       console.log(`🚀 http://localhost:${port}/api`); // Mensaje en consola de conexion y puerto
     });

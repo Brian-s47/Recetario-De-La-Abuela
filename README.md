@@ -232,3 +232,43 @@ connect()
 - Lee .env y configura Express.
 - Conecta a MongoDB antes de escuchar el puerto.
 - Implementa apagado ordenado (cierra HTTP y BD ante SIGINT/SIGTERM).
+
+## Paso 6️⃣: Modelos (JSON Schema + Índices)
+
+Este proyecto usa el driver oficial de MongoDB (no Mongoose). La validación de datos se realiza a nivel de colección con MongoDB JSON Schema, y los índices se crean/actualizan automáticamente al iniciar la app.
+
+**¿Qué hace cada pieza?**
+
+- utils.js / upsertCollection(db, name, { validator, indexes })
+
+- Si la colección no existe → createCollection con JSON Schema.
+
+- Si existe → collMod para actualizar el validador sin borrar datos.
+
+- Crea índices. Si hay conflicto por nombre/opciones (code 86), hace dropIndex y lo vuelve a crear con las opciones correctas (p. ej., unique + collation).
+
+- Idempotente: puedes iniciar la app todas las veces que quieras.
+
+Usuario.js
+
+- alida nombreUsuario y email (regex).
+
+- Índice único: { email: 1 } con collation: { locale: "es", strength: 2 } (case-insensitive).
+
+Ingrediente.js
+
+- Valida nombre y tipo (Vegetal|Proteina|Condimento|Otro).
+
+- Índice único: { nombre: 1 } con collation CI.
+
+**Receta.js**
+
+- Valida usuarioId, nombreReceta y el arreglo ingredientes[] (subdocumentos denormalizados con ingredienteId, nombre, tipo?, descripcion?).
+
+- Índices: usuarioId, ingredientes.ingredienteId, ingredientes.nombre.
+
+**index.js**
+
+- initModels(db) → inicializa todas las colecciones (validator + índices).
+
+
