@@ -1,0 +1,24 @@
+{
+  "name": "recetario-de-la-abuela",
+  "version": "1.0.0",
+  "description": "API REST para una **Plataforma de Recetas Culinarias**, desarrollada con **Node.js, Express y MongoDB**, que permite gestionar usuarios, recetas e ingredientes, además de buscar recetas por ingrediente y listar recetas por usuario.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "mongodb": "^6.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
