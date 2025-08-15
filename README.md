@@ -163,4 +163,72 @@ MONGODB_URI="mongodb+srv://BrianSuarez:<password>@Brian0112.mongodb.net"
 DB_NAME=Recetario_De_La_Abuela
 ```
 
-## Paso 4️⃣: Configuracion conexion BD
+## Paso 4️⃣: dataset.js -> llenado de BD con datos para prueba
+
+### Ejecutar en consola
+```bash
+npm run seed
+```
+**Respuesta Esperada:** 
+![alt text](image.png)
+
+## Paso 5️⃣: Configuracion de conexion con BD de Mongo
+
+Esta API usa Node.js (ES Modules) con el driver oficial de MongoDB. 
+La conexión se inicializa al arrancar el servidor y se valida con un ping mediante el endpoint /health.
+
+```bash
+PORT=3000
+MONGODB_URI="mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net"
+DB_NAME=recetario_de_la_abuela
+```
+
+### Archivo de conexión (db.js)
+
+```bash
+export async function connect() {
+    try { 
+        await client.connect(); // Esperamos que conecte con el cliente
+        console.log(`Conexion con BD: ${dbName} de Mongo Exitosa`); // Mensaje en consola de corecta conexion con DB
+        db = client.db(dbName); // Guardamos BD obtenida
+        await db.command({ ping: 1 }); // Pingo de conexion inmediata para verificar 
+    } catch (error) {
+        console.log("Error al conectar con la BD de Mongo", error);
+    }
+}
+```
+
+**Responsabilidades:**
+
+- Leer .env con dotenv.
+- Crear un único MongoClient.
+
+- Exponer funciones:
+  - connect() → abre la conexión y selecciona la BD.
+  - getDB() → devuelve la instancia actual de BD (lanzará error si no hay conexión).
+  - disconnect() → cierra la conexión al finalizar.
+
+### Arranque del servidor (app.js)
+
+```bash
+connect() 
+  .then(() => { // Conexion correcta
+    const server = app.listen(port, () => { // iniciamos servidor
+      console.log(`🚀 http://localhost:${port}/api`); // Mensaje en consola de conexion y puerto
+    });
+    const shutdown = async (sig) => { // Funcion para apagado ordenado
+      console.log(`\n${sig} recibido. Cerrando...`); // mensjae en consola de la causa de ejecusion de cierre 
+      server.close(async () => { await disconnect(); process.exit(0); }); // Cierra conexiones y sale de pprocesos sale con codigo 0 de cierre correcto
+    };
+    process.on("SIGINT", () => shutdown("SIGINT")); // Captura Ctrl+C en la terminal
+    process.on("SIGTERM", () => shutdown("SIGTERM")); // Captura la señal de terminación
+  })
+  .catch((err) => { // cxonexion incorrecta
+    console.error("❌ No se pudo conectar a MongoDB:", err); // mensja ede error de  conexion
+    process.exit(1); // sale de proceso con codigo 1 de falla 
+  });
+```
+
+- Lee .env y configura Express.
+- Conecta a MongoDB antes de escuchar el puerto.
+- Implementa apagado ordenado (cierra HTTP y BD ante SIGINT/SIGTERM).
